@@ -12,10 +12,10 @@ print(requests.get("https://google.com").text)
 ```python3
 from reqMock import mockControl as mock
 mock.add(
-	url = "https://google.com",		# mock 'from'
-	method = "GET",					# method 'from'
-	mock = "url",					# method mock ('host', 'url', 'match', 'text')
-	to = "https://youtube.com",		# mock 'to'
+	url = "https://google.com",	# mock 'from'
+	method = "GET",			# method 'from'
+	mock = "url",			# method mock ('host', 'url', 'match', 'text')
+	to = "https://youtube.com",	# mock 'to'
 )
 
 # <Original code here>
@@ -26,9 +26,9 @@ mock.add(
 from reqMock import mockControl as mock
 mock.add(
 	url = "https://youtube.com",	# mock 'from'
-	method = "GET",					# method 'from'
-	mock = "text",					# method mock ('host', 'url', 'match', 'text')
-	to = "Hello World!",			# mock 'to'
+	method = "GET",			# method 'from'
+	mock = "text",			# method mock ('host', 'url', 'match', 'text')
+	to = "Hello World!",		# mock 'to'
 )
 
 # <Original code here>
