@@ -5,6 +5,7 @@ class function:
 		self.__request = Session.request
 		self.__urlparse = __import__('urllib').parse
 		self.__showQuery = False
+		self.__showResult = False
 		# for hide
 		try:
 			self.__inspect = __import__('inspect')
@@ -116,6 +117,7 @@ class function:
 		isText = None
 		status_code = None
 		url = self.__urlparse.urlparse(url)
+		mock = None
 
 		for _type in self.__mockData:
 			for i in range(0, len(self.__mockData[_type]), 1):
@@ -123,6 +125,7 @@ class function:
 					if _type == "text":
 						if (self.__mockData[_type][i]['url'] == self.__urlparse.urlunparse(url)):
 							isBreak = True
+							mock = _type
 
 							url = "http://google.com"
 							isText = self.__mockData[_type][i]['to']
@@ -132,6 +135,7 @@ class function:
 					elif _type == "url":
 						if (self.__mockData[_type][i]['url'] == self.__urlparse.urlunparse(url)):
 							isBreak = True
+							mock = _type
 
 							url = self.__mockData[_type][i]['to']
 							if self.__mockData[_type][i]['headers']:
@@ -139,13 +143,13 @@ class function:
 							if self.__mockData[_type][i]['data']:
 								kwargs['data'] = self.__mockData[_type][i]['data']
 							status_code = self.__mockData[_type][i]['status_code']
-							
 							break
 					
 					elif _type == "host":
 						if (self.__mockData[_type][i]['url'] == "{scheme}://{netloc}".format(scheme = url.scheme, netloc = url.netloc)):
 							isBreak = True
-							
+							mock = _type
+
 							url = "{host}{path}".format(host = self.__mockData[_type][i]['to'], path = url.query if url.query else url.path)
 							if self.__mockData[_type][i]['headers']:
 								kwargs['headers'] = self.__mockData[_type][i]['headers']
@@ -157,7 +161,8 @@ class function:
 					elif _type == "match":
 						if (self.__mockData[_type][i]['url'] in self.__urlparse.urlunparse(url)):
 							isBreak = True
-		
+							mock = _type
+
 							url = self.__mockData[_type][i]['to']
 							if self.__mockData[_type][i]['headers']:
 								kwargs['headers'] = self.__mockData[_type][i]['headers']
@@ -172,7 +177,7 @@ class function:
 		if (type(url) != type("")):
 			url = self.__urlparse.urlunparse(url)
 
-		if (self.__showQuery):
+		if (self.__showQuery) and mock != "text":
 			text = ">> requests: {method}: {url}".format(method = method.upper(), url = url)
 			if (kwargs) and (len(kwargs) > 0):
 				count = 0
@@ -185,7 +190,13 @@ class function:
 				text = text + ")"
 			
 			print(text)
+
 		result = self.__request(self.__Session, method=method, url=url, **kwargs)
+
+		if (self.__showResult) and mock != "text":
+			text = ">> result: {method}: {url}\n{result}\n".format(method = method.upper(), url = url, result = result.text)
+			print(text)
+
 		if isText:
 			result._content = isText
 		if status_code:
@@ -210,6 +221,8 @@ class function:
 			for i in kwargs:
 				if i == "showQuery":
 					self.__showQuery = bool(kwargs[i])
+				elif i == "showResult":
+					self.__showResult = bool(kwargs[i])
 				else:
 					raise TypeError("config '{name}' not found!".format(name = i))
 		return
