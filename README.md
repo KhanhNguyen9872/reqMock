@@ -44,7 +44,7 @@ mock.set(showQuery = True)		# Default is False
 # You will see output requests like this ">> requests: GET: https://google.com (params=None)"
 ```
 
-## Enable `showQuery` to print result output from requests
+## Enable `showResult` to print result output from requests
 ```python3
 from reqMock import mockControl as mock
 mock.set(showResult = True)		# Default is False
