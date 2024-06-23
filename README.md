@@ -35,10 +35,21 @@ mock.add(
 # Result should is 'Hello World!'
 ```
 
-## Enable `showQuery` to print detail from requests
+## Enable `showQuery` to print info from requests
 ```python3
 from reqMock import mockControl as mock
 mock.set(showQuery = True)		# Default is False
 
 # <Original code here>
+# You will see output requests like this ">> requests: GET: https://google.com (params=None)"
 ```
+
+## Enable `showQuery` to print result output from requests
+```python3
+from reqMock import mockControl as mock
+mock.set(showResult = True)		# Default is False
+
+# <Original code here>
+# You will see output requests like this ">> result: GET: https://google.com" and below is result output
+```
+
