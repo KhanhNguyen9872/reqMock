@@ -32,10 +32,11 @@ mock.add(
 )
 
 # <Original code here>
+# Result should is 'Hello World!'
 ```
 
 ## Enable `showQuery` to print detail from requests
-```
+```python3
 from reqMock import mockControl as mock
 mock.set(showQuery = True)		# Default is False
 
