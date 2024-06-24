@@ -1,10 +1,25 @@
+Metadata-Version: 2.1
+Name: reqMock
+Version: 0.0.0.1
+Summary: Mock requests in python3
+Home-page: https://github.com/KhanhNguyen9872/reqMock
+Download-URL: https://github.com/KhanhNguyen9872/reqMock
+Author: KhanhNguyen9872
+Author-email: KhanhNguyen9872 <khanhvuinguyenvan800983609@gmail.com>
+License: BSD-3-Clause
+Project-URL: Documentation, https://github.com/KhanhNguyen9872/reqMock#readme
+Project-URL: Issue Tracker, https://github.com/KhanhNguyen9872/reqMock/issues
+Project-URL: Source Code, https://github.com/KhanhNguyen9872/reqMock
+Keywords: reqMock
+Platform: any
+Classifier: License :: OSI Approved :: MIT License
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+Provides-Extra: tests
+Provides-Extra: code
+
 # reqMock
 Mock requests library like HTTPToolkit in python3
-
-# Installation
-```
-pip install reqMock
-```
 
 # Example:
 ## Original code

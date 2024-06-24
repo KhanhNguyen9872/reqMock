@@ -1,0 +1,12 @@
+MANIFEST.in
+README.md
+pyproject.toml
+setup.cfg
+src/reqMock/__init__.py
+src/reqMock/reqMock.py
+src/reqMock.egg-info/PKG-INFO
+src/reqMock.egg-info/SOURCES.txt
+src/reqMock.egg-info/dependency_links.txt
+src/reqMock.egg-info/not-zip-safe
+src/reqMock.egg-info/requires.txt
+src/reqMock.egg-info/top_level.txt
