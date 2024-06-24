@@ -41,6 +41,10 @@ class function:
 	def __dir__(self):
 		return self.__request.__dir__
 
+	@property
+	def __qualname__(self):
+		return self.__request.__qualname__
+
 	def __repr__(self):
 		return "<function Session.request at {}>".format(hex(id(self)))
 
@@ -222,6 +226,22 @@ class __import:
 	def __init__(self, __import):
 		self.__import = __import
 		return
+
+	@property
+	def __name__(self):
+		return self.__import.__name__
+
+	@property
+	def __module__(self):
+		return self.__import.__module__
+
+	@property
+	def __dir__(self):
+		return self.__import.__dir__
+
+	@property
+	def __qualname__(self):
+		return self.__import.__qualname__
 
 	def __repr__(self):
 		return "<built-in function __import__>"
