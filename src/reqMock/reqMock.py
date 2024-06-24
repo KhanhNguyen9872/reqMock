@@ -1,249 +1,249 @@
 __import__('requests')
 
 class function:
-	def __init__(self, Session):
-		self.__Session = Session()
-		self.__request = Session.request
-		self.__urlparse = __import__('urllib').parse
-		self.__showQuery = False
-		self.__showResult = False
-		self.__stdout = __import__('sys').stdout
-		self.__qualname__ = self.__request.__qualname__
+    def __init__(self, Session):
+        self.__Session = Session()
+        self.__request = Session.request
+        self.__urlparse = __import__('urllib').parse
+        self.__showQuery = False
+        self.__showResult = False
+        self.__stdout = __import__('sys').stdout
+        self.__qualname__ = self.__request.__qualname__
 
-		self.__mockData = {
-			"host": [
+        self.__mockData = {
+            "host": [
        
-       		],
-			"url": [
-				
-			],
-			"match": [
-				
-			],
-			"text": [
-				
-			]
-		}
-		return
-	
-	@property
-	def __name__(self):
-		return self.__request.__name__
-
-	@property
-	def __module__(self):
-		return self.__request.__module__
-
-	@property
-	def __dict__(self):
-		return self.__request.__dict__
-
-	@property
-	def __dir__(self):
-		return self.__request.__dir__
-
-	def __repr__(self):
-		return "<function Session.request at {}>".format(hex(id(self)))
-
-	def add(self, url, method, mock, to, headers = None, data = None, status_code = 200):
-		try:
-			tmp = self.__urlparse.urlparse(url)
-			if url and all([tmp.scheme, tmp.netloc]):
-				pass
-			else:
-				raise ValueError
-		except ValueError:
-			raise ValueError("add(): [url] must be a url")
-
-		if (not method) and (not method.lower() in ["get", "post", "delete", "put", "patch", "options", "head"]):
-			raise TypeError("add(): invalid [method]")
-
-		if not mock in self.__mockData:
-			raise TypeError("add(): [mock] must be a {text}. Found '{found}'".format(text = ", ".join([("'" + x + "'") for x in self.__mockData]), found = mock))
-
-		if mock in ["url", "host", "match"]:
-			try:
-				tmp = self.__urlparse.urlparse(to)
-				if to and all([tmp.scheme, tmp.netloc]):
-					pass
-				else:
-					raise ValueError
-			except ValueError:
-				raise ValueError("add(): In mock ('url', 'host', 'match'), [to] must is a url")
-
-		try:
-			if len(str(status_code)) == 3:
-				int(status_code)
-			else:
-				raise ValueError
-		except ValueError:
-			raise ValueError("add(): [status_code] must be a integer, and from 000 to 999")
-
-		if mock == "text":
-			if type(to) != type(b''):
-				to = str(to).encode('utf8')
+               ],
+            "url": [
+                
+            ],
+            "match": [
+                
+            ],
+            "text": [
+                
+            ]
+        }
+        return
     
-		data = {
-			'url': url,
-			'method': method.lower(),
-			'to': to,
-			'headers': headers,
-			'data': data,
-			'status_code': status_code
-		}
-		self.__mockData[mock].append(data)
-		return
+    @property
+    def __name__(self):
+        return self.__request.__name__
 
-	def remove(self, url):
-		for type in self.__mockData:
-			for i in range(0, len(self.__mockData[type]), 1):
-				if (self.__mockData[type][i]['url'] == url):
-					del self.__mockData[type][i]
-		return
+    @property
+    def __module__(self):
+        return self.__request.__module__
 
-	def __call__(self, method, url, **kwargs):
-		isBreak = False
-		isText = None
-		status_code = None
-		url = self.__urlparse.urlparse(url)
-		mock = None
+    @property
+    def __dict__(self):
+        return self.__request.__dict__
 
-		for _type in self.__mockData:
-			for i in range(0, len(self.__mockData[_type]), 1):
-				if (self.__mockData[_type][i]['method'] == method):
-					if _type == "text":
-						if (self.__mockData[_type][i]['url'] == self.__urlparse.urlunparse(url)):
-							isBreak = True
-							mock = _type
+    @property
+    def __dir__(self):
+        return self.__request.__dir__
 
-							url = "http://google.com"
-							isText = self.__mockData[_type][i]['to']
-							status_code = self.__mockData[_type][i]['status_code']
-							if not status_code:
-								status_code = 200
-							break
-	
-					elif _type == "url":
-						if (self.__mockData[_type][i]['url'] == self.__urlparse.urlunparse(url)):
-							isBreak = True
-							mock = _type
+    def __repr__(self):
+        return "<function Session.request at {}>".format(hex(id(self)))
 
-							url = self.__mockData[_type][i]['to']
-							if self.__mockData[_type][i]['headers']:
-								kwargs['headers'] = self.__mockData[_type][i]['headers']
-							if self.__mockData[_type][i]['data']:
-								kwargs['data'] = self.__mockData[_type][i]['data']
-							status_code = self.__mockData[_type][i]['status_code']
-							break
-					
-					elif _type == "host":
-						if (self.__mockData[_type][i]['url'] == "{scheme}://{netloc}".format(scheme = url.scheme, netloc = url.netloc)):
-							isBreak = True
-							mock = _type
+    def add(self, url, method, mock, to, headers = None, data = None, status_code = 200):
+        try:
+            tmp = self.__urlparse.urlparse(url)
+            if url and all([tmp.scheme, tmp.netloc]):
+                pass
+            else:
+                raise ValueError
+        except ValueError:
+            raise ValueError("add(): [url] must be a url")
 
-							url = "{host}{path}".format(host = self.__mockData[_type][i]['to'], path = url.query if url.query else url.path)
-							if self.__mockData[_type][i]['headers']:
-								kwargs['headers'] = self.__mockData[_type][i]['headers']
-							if self.__mockData[_type][i]['data']:
-								kwargs['data'] = self.__mockData[_type][i]['data']
-							status_code = self.__mockData[_type][i]['status_code']
-							break
-	
-					elif _type == "match":
-						if (self.__mockData[_type][i]['url'] in self.__urlparse.urlunparse(url)):
-							isBreak = True
-							mock = _type
+        if (not method) and (not method.lower() in ["get", "post", "delete", "put", "patch", "options", "head"]):
+            raise TypeError("add(): invalid [method]")
 
-							url = self.__mockData[_type][i]['to']
-							if self.__mockData[_type][i]['headers']:
-								kwargs['headers'] = self.__mockData[_type][i]['headers']
-							if self.__mockData[_type][i]['data']:
-								kwargs['data'] = self.__mockData[_type][i]['data']
-							status_code = self.__mockData[_type][i]['status_code']
-							break
-				
-			if isBreak:
-				break
+        if not mock in self.__mockData:
+            raise TypeError("add(): [mock] must be a {text}. Found '{found}'".format(text = ", ".join([("'" + x + "'") for x in self.__mockData]), found = mock))
 
-		if (type(url) != type("")):
-			url = self.__urlparse.urlunparse(url)
+        if mock in ["url", "host", "match"]:
+            try:
+                tmp = self.__urlparse.urlparse(to)
+                if to and all([tmp.scheme, tmp.netloc]):
+                    pass
+                else:
+                    raise ValueError
+            except ValueError:
+                raise ValueError("add(): In mock ('url', 'host', 'match'), [to] must is a url")
 
-		if (self.__showQuery) and mock != "text":
-			text = ">> requests: {method}: {url}".format(method = method.upper(), url = url)
-			if (kwargs) and (len(kwargs) > 0):
-				count = 0
-				args = "("
-				for i in kwargs:
-					if kwargs[i]:
-						args = args + "{key}={value}".format(key = i, value = kwargs[i])
-						if (len(kwargs) > 1) and (count != len(kwargs) - 1):
-							args = args + ", "
-					count = count + 1
-				args = args + ")"
-			
-			if args == "()":
-				args = ""
+        try:
+            if len(str(status_code)) == 3:
+                int(status_code)
+            else:
+                raise ValueError
+        except ValueError:
+            raise ValueError("add(): [status_code] must be a integer, and from 000 to 999")
 
-			if args:
-				text = text + " " + args
+        if mock == "text":
+            if type(to) != type(b''):
+                to = str(to).encode('utf8')
+    
+        data = {
+            'url': url,
+            'method': method.lower(),
+            'to': to,
+            'headers': headers,
+            'data': data,
+            'status_code': status_code
+        }
+        self.__mockData[mock].append(data)
+        return
 
-			self.__stdout.write(text + "\n")
+    def remove(self, url):
+        for type in self.__mockData:
+            for i in range(0, len(self.__mockData[type]), 1):
+                if (self.__mockData[type][i]['url'] == url):
+                    del self.__mockData[type][i]
+        return
 
-		result = self.__request(self.__Session, method=method, url=url, **kwargs)
+    def __call__(self, method, url, **kwargs):
+        isBreak = False
+        isText = None
+        status_code = None
+        url = self.__urlparse.urlparse(url)
+        mock = None
 
-		if (self.__showResult) and mock != "text":
-			text = ">> result: {method}: {url}\n{result}\n".format(method = method.upper(), url = url, result = result.text)
-			self.__stdout.write(text + "\n")
+        for _type in self.__mockData:
+            for i in range(0, len(self.__mockData[_type]), 1):
+                if (self.__mockData[_type][i]['method'] == method):
+                    if _type == "text":
+                        if (self.__mockData[_type][i]['url'] == self.__urlparse.urlunparse(url)):
+                            isBreak = True
+                            mock = _type
 
-		if isText:
-			result._content = isText
-		if status_code:
-			result.status_code = status_code
+                            url = "http://google.com"
+                            isText = self.__mockData[_type][i]['to']
+                            status_code = self.__mockData[_type][i]['status_code']
+                            if not status_code:
+                                status_code = 200
+                            break
+    
+                    elif _type == "url":
+                        if (self.__mockData[_type][i]['url'] == self.__urlparse.urlunparse(url)):
+                            isBreak = True
+                            mock = _type
 
-		return result
+                            url = self.__mockData[_type][i]['to']
+                            if self.__mockData[_type][i]['headers']:
+                                kwargs['headers'] = self.__mockData[_type][i]['headers']
+                            if self.__mockData[_type][i]['data']:
+                                kwargs['data'] = self.__mockData[_type][i]['data']
+                            status_code = self.__mockData[_type][i]['status_code']
+                            break
+                    
+                    elif _type == "host":
+                        if (self.__mockData[_type][i]['url'] == "{scheme}://{netloc}".format(scheme = url.scheme, netloc = url.netloc)):
+                            isBreak = True
+                            mock = _type
 
-	def set(self, **kwargs):
-		if kwargs:
-			for i in kwargs:
-				if i == "showQuery":
-					self.__showQuery = bool(kwargs[i])
-				elif i == "showResult":
-					self.__showResult = bool(kwargs[i])
-				elif i == "stdout":
-					if kwargs[i] and (type(kwargs[i]) == __import__('_io').TextIOWrapper):
-						self.__stdout = kwargs[i]
-					else:
-						raise TypeError("invalid stdout. Found '{found}'".format(found = type(kwargs[i])))
-				else:
-					raise TypeError("config '{name}' not found!".format(name = i))
-		return
+                            url = "{host}{path}".format(host = self.__mockData[_type][i]['to'], path = url.query if url.query else url.path)
+                            if self.__mockData[_type][i]['headers']:
+                                kwargs['headers'] = self.__mockData[_type][i]['headers']
+                            if self.__mockData[_type][i]['data']:
+                                kwargs['data'] = self.__mockData[_type][i]['data']
+                            status_code = self.__mockData[_type][i]['status_code']
+                            break
+    
+                    elif _type == "match":
+                        if (self.__mockData[_type][i]['url'] in self.__urlparse.urlunparse(url)):
+                            isBreak = True
+                            mock = _type
+
+                            url = self.__mockData[_type][i]['to']
+                            if self.__mockData[_type][i]['headers']:
+                                kwargs['headers'] = self.__mockData[_type][i]['headers']
+                            if self.__mockData[_type][i]['data']:
+                                kwargs['data'] = self.__mockData[_type][i]['data']
+                            status_code = self.__mockData[_type][i]['status_code']
+                            break
+                
+            if isBreak:
+                break
+
+        if (type(url) != type("")):
+            url = self.__urlparse.urlunparse(url)
+
+        if (self.__showQuery) and mock != "text":
+            text = ">> requests: {method}: {url}".format(method = method.upper(), url = url)
+            if (kwargs) and (len(kwargs) > 0):
+                count = 0
+                args = "("
+                for i in kwargs:
+                    if kwargs[i]:
+                        args = args + "{key}={value}".format(key = i, value = kwargs[i])
+                        if (len(kwargs) > 1) and (count != len(kwargs) - 1):
+                            args = args + ", "
+                    count = count + 1
+                args = args + ")"
+            
+            if args == "()":
+                args = ""
+
+            if args:
+                text = text + " " + args
+
+            self.__stdout.write(text + "\n")
+
+        result = self.__request(self.__Session, method=method, url=url, **kwargs)
+
+        if (self.__showResult) and mock != "text":
+            text = ">> result: {method}: {url}\n{result}\n".format(method = method.upper(), url = url, result = result.text)
+            self.__stdout.write(text + "\n")
+
+        if isText:
+            result._content = isText
+        if status_code:
+            result.status_code = status_code
+
+        return result
+
+    def set(self, **kwargs):
+        if kwargs:
+            for i in kwargs:
+                if i == "showQuery":
+                    self.__showQuery = bool(kwargs[i])
+                elif i == "showResult":
+                    self.__showResult = bool(kwargs[i])
+                elif i == "stdout":
+                    if kwargs[i] and (type(kwargs[i]) == __import__('_io').TextIOWrapper):
+                        self.__stdout = kwargs[i]
+                    else:
+                        raise TypeError("invalid stdout. Found '{found}'".format(found = type(kwargs[i])))
+                else:
+                    raise TypeError("config '{name}' not found!".format(name = i))
+        return
 
 # __import__
 class __import:
-	def __init__(self, __import):
-		self.__import = __import
-		self.__qualname__ = self.__import.__qualname__
-		return
+    def __init__(self, __import):
+        self.__import = __import
+        self.__qualname__ = self.__import.__qualname__
+        return
 
-	@property
-	def __name__(self):
-		return self.__import.__name__
+    @property
+    def __name__(self):
+        return self.__import.__name__
 
-	@property
-	def __module__(self):
-		return self.__import.__module__
+    @property
+    def __module__(self):
+        return self.__import.__module__
 
-	@property
-	def __dir__(self):
-		return self.__import.__dir__
+    @property
+    def __dir__(self):
+        return self.__import.__dir__
 
-	def __repr__(self):
-		return "<built-in function __import__>"
+    def __repr__(self):
+        return "<built-in function __import__>"
 
-	def __call__(self, *args, **kwargs):
-		if (args[0] == __package__):
-			raise ModuleNotFoundError("No module named '{}'".format(__package__))
-		return self.__import(*args, **kwargs)
+    def __call__(self, *args, **kwargs):
+        if (args[0] == __package__):
+            raise ModuleNotFoundError("No module named '{}'".format(__package__))
+        return self.__import(*args, **kwargs)
 
 __import = __import(vars(__import__('builtins')).copy()['__import__'])
 
@@ -253,12 +253,12 @@ __import__('builtins').__import__ = __import
 mockControl = function(__import__('requests').Session)
 
 class Session:
-	def request(self, method, url, **kwargs):
-		return mockControl(method, url, **kwargs)
+    def request(self, method, url, **kwargs):
+        return mockControl(method, url, **kwargs)
 
 try:
-	__import__('requests').Session.request = Session.request
+    __import__('requests').Session.request = Session.request
 except Exception as e:
-	raise e
+    raise e
 
 del function, Session
