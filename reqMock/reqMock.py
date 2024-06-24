@@ -1,3 +1,4 @@
+__import__('requests')
 
 class function:
 	def __init__(self, Session):
@@ -6,12 +7,7 @@ class function:
 		self.__urlparse = __import__('urllib').parse
 		self.__showQuery = False
 		self.__showResult = False
-		# for hide
-		try:
-			self.__inspect = __import__('inspect')
-		except Exception:
-			print("WARNING: hide feature not working due to 'inspect' library not found!")
-			self.__inspect = None
+		self.__stdout = __import__('sys').stdout
 
 		self.__mockData = {
 			"host": [
@@ -48,15 +44,7 @@ class function:
 	def __repr__(self):
 		return "<function Session.request at {}>".format(hex(id(self)))
 
-	def __check(self):
-		if self.__inspect:
-			stack = self.__inspect.stack()
-			# caller_frame = stack[2]
-			# caller_info = (caller_frame.function, caller_frame.lineno)
-			return stack
-		return True
-
-	def __add(self, url, method, mock, to, headers = None, data = None, status_code = 200):
+	def add(self, url, method, mock, to, headers = None, data = None, status_code = 200):
 		try:
 			tmp = self.__urlparse.urlparse(url)
 			if url and all([tmp.scheme, tmp.netloc]):
@@ -105,7 +93,7 @@ class function:
 		self.__mockData[mock].append(data)
 		return
 
-	def __remove(self, url):
+	def remove(self, url):
 		for type in self.__mockData:
 			for i in range(0, len(self.__mockData[type]), 1):
 				if (self.__mockData[type][i]['url'] == url):
@@ -130,6 +118,8 @@ class function:
 							url = "http://google.com"
 							isText = self.__mockData[_type][i]['to']
 							status_code = self.__mockData[_type][i]['status_code']
+							if not status_code:
+								status_code = 200
 							break
 	
 					elif _type == "url":
@@ -181,21 +171,28 @@ class function:
 			text = ">> requests: {method}: {url}".format(method = method.upper(), url = url)
 			if (kwargs) and (len(kwargs) > 0):
 				count = 0
-				text = text + " ("
+				args = "("
 				for i in kwargs:
-					text = text + "{key}={value}".format(key = i, value = kwargs[i])
-					if (len(kwargs) > 1) and (count != len(kwargs) - 1):
-						text = text + ", "
+					if kwargs[i]:
+						args = args + "{key}={value}".format(key = i, value = kwargs[i])
+						if (len(kwargs) > 1) and (count != len(kwargs) - 1):
+							args = args + ", "
 					count = count + 1
-				text = text + ")"
+				args = args + ")"
 			
-			print(text)
+			if args == "()":
+				args = ""
+
+			if args:
+				text = text + " " + args
+
+			self.__stdout.write(text + "\n")
 
 		result = self.__request(self.__Session, method=method, url=url, **kwargs)
 
 		if (self.__showResult) and mock != "text":
 			text = ">> result: {method}: {url}\n{result}\n".format(method = method.upper(), url = url, result = result.text)
-			print(text)
+			self.__stdout.write(text + "\n")
 
 		if isText:
 			result._content = isText
@@ -203,18 +200,6 @@ class function:
 			result.status_code = status_code
 
 		return result
-	
-	def add(self, url, **kwargs):
-		if self.__check():
-			return self.__add(url, **kwargs)
-		else:
-			raise AttributeError("'function' object has no attribute 'add'")
-
-	def remove(self, url):
-		if self.__check():
-			return self.__remove(url)
-		else:
-			raise AttributeError("'function' object has no attribute 'remove'")
 
 	def set(self, **kwargs):
 		if kwargs:
@@ -223,18 +208,43 @@ class function:
 					self.__showQuery = bool(kwargs[i])
 				elif i == "showResult":
 					self.__showResult = bool(kwargs[i])
+				elif i == "stdout":
+					if kwargs[i] and (type(kwargs[i]) == __import__('_io').TextIOWrapper):
+						self.__stdout = kwargs[i]
+					else:
+						raise TypeError("invalid stdout. Found '{found}'".format(found = type(kwargs[i])))
 				else:
 					raise TypeError("config '{name}' not found!".format(name = i))
 		return
 
+# __import__
+class __import:
+	def __init__(self, __import):
+		self.__import = __import
+		return
+
+	def __repr__(self):
+		return "<built-in function __import__>"
+
+	def __call__(self, *args, **kwargs):
+		if (args[0] == __package__):
+			raise ModuleNotFoundError("No module named '{}'".format(__package__))
+		return self.__import(*args, **kwargs)
+
+__import = __import(vars(__import__('builtins')).copy()['__import__'])
+
+__import__('builtins').__import__ = __import
+
+# mock
 mockControl = function(__import__('requests').Session)
 
-try:
-	del function
-except:
-    pass
+class Session:
+	def request(self, method, url, **kwargs):
+		return mockControl(method, url, **kwargs)
 
 try:
-	__import__('requests').Session.request = mockControl
+	__import__('requests').Session.request = Session.request
 except Exception as e:
 	raise e
+
+del function, Session
