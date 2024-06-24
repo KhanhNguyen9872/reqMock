@@ -8,6 +8,7 @@ class function:
 		self.__showQuery = False
 		self.__showResult = False
 		self.__stdout = __import__('sys').stdout
+		self.__qualname__ = self.__request.__qualname__
 
 		self.__mockData = {
 			"host": [
@@ -40,10 +41,6 @@ class function:
 	@property
 	def __dir__(self):
 		return self.__request.__dir__
-
-	@property
-	def __qualname__(self):
-		return self.__request.__qualname__
 
 	def __repr__(self):
 		return "<function Session.request at {}>".format(hex(id(self)))
@@ -225,6 +222,7 @@ class function:
 class __import:
 	def __init__(self, __import):
 		self.__import = __import
+		self.__qualname__ = self.__import.__qualname__
 		return
 
 	@property
@@ -238,10 +236,6 @@ class __import:
 	@property
 	def __dir__(self):
 		return self.__import.__dir__
-
-	@property
-	def __qualname__(self):
-		return self.__import.__qualname__
 
 	def __repr__(self):
 		return "<built-in function __import__>"

@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: reqMock
-Version: 0.0.0.1
+Version: 0.0.0.2
 Summary: Mock requests in python3
 Home-page: https://github.com/KhanhNguyen9872/reqMock
 Download-URL: https://github.com/KhanhNguyen9872/reqMock
@@ -20,6 +20,11 @@ Provides-Extra: code
 
 # reqMock
 Mock requests library like HTTPToolkit in python3
+
+# Installation
+```
+pip install reqMock
+```
 
 # Example:
 ## Original code

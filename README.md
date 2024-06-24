@@ -2,7 +2,7 @@
 Mock requests library like HTTPToolkit in python3
 
 # Installation
-```
+```bash
 pip install reqMock
 ```
 
