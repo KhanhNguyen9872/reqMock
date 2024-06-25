@@ -60,3 +60,16 @@ mock.set(stdout = open('out.txt', 'w'))
 
 # Output of 'show' option will write to file instead of write to output
 ```
+
+# If you want to rename this module for hide from check
+```python3
+# Open a python3 shell
+from reqMock import mockControl as mock
+
+# Example change module name from 'reqMock' to 'Khanh'
+mock.set(moduleName = "Khanh")
+# Choose 'y' and new name will applied in new session
+
+# For new session, import it by using new name
+from Khanh import mockControl as mock
+```
