@@ -38,7 +38,7 @@ mock.add(
 )
 ```
 
-## Mock `https://google.com` to custom result
+## Mock `https://youtube.com` to custom result
 ```python3
 mock.add(
 	url = "https://youtube.com",
