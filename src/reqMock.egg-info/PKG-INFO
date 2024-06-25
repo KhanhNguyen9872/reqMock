@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: reqMock
-Version: 0.0.0.2
+Version: 0.0.0.3
 Summary: Mock requests in python3
 Home-page: https://github.com/KhanhNguyen9872/reqMock
 Download-URL: https://github.com/KhanhNguyen9872/reqMock
@@ -22,7 +22,7 @@ Provides-Extra: code
 Mock requests library like HTTPToolkit in python3
 
 # Installation
-```
+```bash
 pip install reqMock
 ```
 
@@ -38,23 +38,34 @@ print(requests.get("https://google.com").text)
 from reqMock import mockControl as mock
 ```
 
+## Enable mock
+```python3
+# To enable mock
+mock.set(enable = True)
+
+# To disable mock
+mock.set(enable = False)
+```
+
 ## Mock `https://google.com` to another website
 ```python3
 mock.add(
 	url = "https://google.com",	# mock 'from'
 	method = "GET",			# method 'from'
-	mock = "url",			# method mock ('host', 'url', 'match', 'text')
-	to = "https://youtube.com",	# mock 'to'
+	mockCheck = "url",			# method mock ('host', 'url', 'match')
+	mockMethod = "url",			# mock to 'url' or 'text'
+	to = "https://youtube.com",	# data
 )
 ```
 
 ## Mock `https://google.com` to custom result
 ```python3
 mock.add(
-	url = "https://youtube.com",	# mock 'from'
-	method = "GET",			# method 'from'
-	mock = "text",			# method mock ('host', 'url', 'match', 'text')
-	to = "Hello World!",		# mock 'to'
+	url = "https://youtube.com",
+	method = "GET",	
+	mockCheck = "url",	
+	mockMethod = "text",
+	to = "Hello World!"
 )
 ```
 
@@ -79,4 +90,17 @@ mock.set(showResult = True)		# Default is False
 mock.set(stdout = open('out.txt', 'w'))
 
 # Output of 'show' option will write to file instead of write to output
+```
+
+# If you want to rename this module for hide from check
+```python3
+# Open a python3 shell
+from reqMock import mockControl as mock
+
+# Example change module name from 'reqMock' to 'Khanh'
+mock.set(moduleName = "Khanh")
+# Choose 'y' and new name will applied in new session
+
+# For new session, import it by using new name
+from Khanh import mockControl as mock
 ```
