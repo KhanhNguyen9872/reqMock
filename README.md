@@ -18,23 +18,34 @@ print(requests.get("https://google.com").text)
 from reqMock import mockControl as mock
 ```
 
+## Enable mock
+```python3
+# To enable mock
+mock.set(enable = True)
+
+# To disable mock
+mock.set(enable = False)
+```
+
 ## Mock `https://google.com` to another website
 ```python3
 mock.add(
 	url = "https://google.com",	# mock 'from'
 	method = "GET",			# method 'from'
-	mock = "url",			# method mock ('host', 'url', 'match', 'text')
-	to = "https://youtube.com",	# mock 'to'
+	mockCheck = "url",			# method mock ('host', 'url', 'match')
+	mockMethod = "url",			# mock to 'url' or 'text'
+	to = "https://youtube.com",	# data
 )
 ```
 
 ## Mock `https://google.com` to custom result
 ```python3
 mock.add(
-	url = "https://youtube.com",	# mock 'from'
-	method = "GET",			# method 'from'
-	mock = "text",			# method mock ('host', 'url', 'match', 'text')
-	to = "Hello World!",		# mock 'to'
+	url = "https://youtube.com",
+	method = "GET",	
+	mockCheck = "url",	
+	mockMethod = "text",
+	to = "Hello World!"
 )
 ```
 
