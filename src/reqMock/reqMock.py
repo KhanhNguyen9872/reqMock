@@ -5,6 +5,10 @@ class function:
         self.__Enable = False
         self.__name = __name__
         self.__package = __package__
+        self.__modulePath = __file__
+        if (self.__modulePath):
+        	self.__modulePath = "/".join("/".join(self.__modulePath.split("\\")).split("/")[:-1])
+
 
         self.__Session = Session()
         self.__request = Session.request
@@ -231,52 +235,61 @@ class function:
                         self.__stdout.write("> mock enabled!\n")
                     else:
                     	self.__stdout.write("> mock disabled!\n")
+                elif i == "moduleName":
+                	name = str(kwargs[i])
+                	current_name = self.__modulePath.split("/")[-1]
+
+                	print(">> WARNING: You choose rename module from '{old}' to '{new}'".format(old = current_name, new = name))
+                	if input(">> Do you want to rename? [Y/*]: ").lower() == "y":
+	                	new_path = "/".join(self.__modulePath.split("/")[:-1]) + "/" + name
+	                	__import__('os').rename(self.__modulePath, new_path)
+	                	self.__modulePath = new_path
+	                	print(">> WARNING: restart script to apply change!")
+	                else:
+	                	print(">> Cancelled!")
                 else:
                     raise TypeError("config '{name}' not found!".format(name = i))
         return
 
-exec(compile("""
-# __import__
-class __import:
-    def __init__(self, __import):
-        self.__import = __import
-        self.__qualname__ = self.__import.__qualname__
-        return
+# exec(compile("""
+# # __import__
+# class __import:
+#     def __init__(self, __import):
+#         self.__import = __import
+#         self.__qualname__ = self.__import.__qualname__
+#         return
 
-    @property
-    def __name__(self):
-        return self.__import.__name__
+#     @property
+#     def __name__(self):
+#         return self.__import.__name__
 
-    @property
-    def __module__(self):
-        return self.__import.__module__
+#     @property
+#     def __module__(self):
+#         return self.__import.__module__
 
-    @property
-    def __dir__(self):
-        return self.__import.__dir__
+#     @property
+#     def __dir__(self):
+#         return self.__import.__dir__
 
-    def __repr__(self):
-        return "<built-in function __import__>"
+#     def __repr__(self):
+#         return "<built-in function __import__>"
 
-    def __call__(self, *args, **kwargs):
-        if (args[0] == __package__):
-            raise ModuleNotFoundError("No module named '{}'".format(__package__))
-        return self.__import(*args, **kwargs)
+#     def __call__(self, *args, **kwargs):
+#         if (args[0] == __package__):
+#             raise ModuleNotFoundError("No module named '{}'".format(__package__))
+#         return self.__import(*args, **kwargs)
 
-__import = __import(vars(__import__('builtins')).copy()['__import__'])
+# __import = __import(vars(__import__('builtins')).copy()['__import__'])
 
-__import__('builtins').__import__ = __import
-""", "<stdin>", "exec"))
+# __import__('builtins').__import__ = __import
+# """, "<stdin>", "exec"))
 
-__name__ = __import__('requests').__name__
-__file__ = __import__('requests').__file__
-__cached__ = __import__('requests').__cached__
-__spec__ = __import__('requests').__spec__
-__loader__ = __import__('requests').__loader__
-__doc__ = __import__('requests').__doc__
 
 # mock
 mockControl = function(__import__('requests').Session)
+
+for reqMock in ["__name__", "__file__", "__cached__", "__spec__", "__loader__", "__doc__", "__path__"]:
+	globals()[reqMock] = __import__('requests').__dict__[reqMock]
 
 class Session:
     def request(self, method, url, **kwargs):
