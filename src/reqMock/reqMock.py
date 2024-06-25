@@ -2,6 +2,10 @@ __import__('requests')
 
 class function:
     def __init__(self, Session):
+        self.__Enable = False
+        self.__name = __name__
+        self.__package = __package__
+
         self.__Session = Session()
         self.__request = Session.request
         self.__urlparse = __import__('urllib').parse
@@ -102,71 +106,72 @@ class function:
         return
 
     def __call__(self, method, url, **kwargs):
-        isBreak = False
-        isText = None
-        status_code = None
-        url = self.__urlparse.urlparse(url)
-        mock = None
+        if self.__Enable:
+            isBreak = False
+            isText = None
+            status_code = None
+            url = self.__urlparse.urlparse(url)
+            mock = None
 
-        for _type in self.__mockData:
-            for i in range(0, len(self.__mockData[_type]), 1):
-                if (self.__mockData[_type][i]['method'] == method):
-                    if _type == "text":
-                        if (self.__mockData[_type][i]['url'] == self.__urlparse.urlunparse(url)):
-                            isBreak = True
-                            mock = _type
+            for _type in self.__mockData:
+                for i in range(0, len(self.__mockData[_type]), 1):
+                    if (self.__mockData[_type][i]['method'] == method):
+                        if _type == "text":
+                            if (self.__mockData[_type][i]['url'] == self.__urlparse.urlunparse(url)):
+                                isBreak = True
+                                mock = _type
 
-                            url = "http://google.com"
-                            isText = self.__mockData[_type][i]['to']
-                            status_code = self.__mockData[_type][i]['status_code']
-                            if not status_code:
-                                status_code = 200
-                            break
-    
-                    elif _type == "url":
-                        if (self.__mockData[_type][i]['url'] == self.__urlparse.urlunparse(url)):
-                            isBreak = True
-                            mock = _type
+                                url = "http://google.com"
+                                isText = self.__mockData[_type][i]['to']
+                                status_code = self.__mockData[_type][i]['status_code']
+                                if not status_code:
+                                    status_code = 200
+                                break
+        
+                        elif _type == "url":
+                            if (self.__mockData[_type][i]['url'] == self.__urlparse.urlunparse(url)):
+                                isBreak = True
+                                mock = _type
 
-                            url = self.__mockData[_type][i]['to']
-                            if self.__mockData[_type][i]['headers']:
-                                kwargs['headers'] = self.__mockData[_type][i]['headers']
-                            if self.__mockData[_type][i]['data']:
-                                kwargs['data'] = self.__mockData[_type][i]['data']
-                            status_code = self.__mockData[_type][i]['status_code']
-                            break
+                                url = self.__mockData[_type][i]['to']
+                                if self.__mockData[_type][i]['headers']:
+                                    kwargs['headers'] = self.__mockData[_type][i]['headers']
+                                if self.__mockData[_type][i]['data']:
+                                    kwargs['data'] = self.__mockData[_type][i]['data']
+                                status_code = self.__mockData[_type][i]['status_code']
+                                break
+                        
+                        elif _type == "host":
+                            if (self.__mockData[_type][i]['url'] == "{scheme}://{netloc}".format(scheme = url.scheme, netloc = url.netloc)):
+                                isBreak = True
+                                mock = _type
+
+                                url = "{host}{path}".format(host = self.__mockData[_type][i]['to'], path = url.query if url.query else url.path)
+                                if self.__mockData[_type][i]['headers']:
+                                    kwargs['headers'] = self.__mockData[_type][i]['headers']
+                                if self.__mockData[_type][i]['data']:
+                                    kwargs['data'] = self.__mockData[_type][i]['data']
+                                status_code = self.__mockData[_type][i]['status_code']
+                                break
+        
+                        elif _type == "match":
+                            if (self.__mockData[_type][i]['url'] in self.__urlparse.urlunparse(url)):
+                                isBreak = True
+                                mock = _type
+
+                                url = self.__mockData[_type][i]['to']
+                                if self.__mockData[_type][i]['headers']:
+                                    kwargs['headers'] = self.__mockData[_type][i]['headers']
+                                if self.__mockData[_type][i]['data']:
+                                    kwargs['data'] = self.__mockData[_type][i]['data']
+                                status_code = self.__mockData[_type][i]['status_code']
+                                break
                     
-                    elif _type == "host":
-                        if (self.__mockData[_type][i]['url'] == "{scheme}://{netloc}".format(scheme = url.scheme, netloc = url.netloc)):
-                            isBreak = True
-                            mock = _type
+                if isBreak:
+                    break
 
-                            url = "{host}{path}".format(host = self.__mockData[_type][i]['to'], path = url.query if url.query else url.path)
-                            if self.__mockData[_type][i]['headers']:
-                                kwargs['headers'] = self.__mockData[_type][i]['headers']
-                            if self.__mockData[_type][i]['data']:
-                                kwargs['data'] = self.__mockData[_type][i]['data']
-                            status_code = self.__mockData[_type][i]['status_code']
-                            break
-    
-                    elif _type == "match":
-                        if (self.__mockData[_type][i]['url'] in self.__urlparse.urlunparse(url)):
-                            isBreak = True
-                            mock = _type
-
-                            url = self.__mockData[_type][i]['to']
-                            if self.__mockData[_type][i]['headers']:
-                                kwargs['headers'] = self.__mockData[_type][i]['headers']
-                            if self.__mockData[_type][i]['data']:
-                                kwargs['data'] = self.__mockData[_type][i]['data']
-                            status_code = self.__mockData[_type][i]['status_code']
-                            break
-                
-            if isBreak:
-                break
-
-        if (type(url) != type("")):
-            url = self.__urlparse.urlunparse(url)
+            if (type(url) != type("")):
+                url = self.__urlparse.urlunparse(url)
 
         if (self.__showQuery) and mock != "text":
             text = ">> requests: {method}: {url}".format(method = method.upper(), url = url)
@@ -195,10 +200,11 @@ class function:
             text = ">> result: {method}: {url}\n{result}\n".format(method = method.upper(), url = url, result = result.text)
             self.__stdout.write(text + "\n")
 
-        if isText:
-            result._content = isText
-        if status_code:
-            result.status_code = status_code
+        if self.__Enable:
+            if isText:
+                result._content = isText
+            if status_code:
+                result.status_code = status_code
 
         return result
 
@@ -214,10 +220,22 @@ class function:
                         self.__stdout = kwargs[i]
                     else:
                         raise TypeError("invalid stdout. Found '{found}'".format(found = type(kwargs[i])))
+                elif i == "enable":
+                    self.__Enable = bool(kwargs[i])
+                    if self.__Enable:
+                        for i in [self.__name, self.__package]:
+                            try:
+                                del __import__('sys').modules[i]
+                            except KeyError:
+                                continue
+                        self.__stdout.write("> mock enabled!\n")
+                    else:
+                    	self.__stdout.write("> mock disabled!\n")
                 else:
                     raise TypeError("config '{name}' not found!".format(name = i))
         return
 
+exec(compile("""
 # __import__
 class __import:
     def __init__(self, __import):
@@ -248,6 +266,14 @@ class __import:
 __import = __import(vars(__import__('builtins')).copy()['__import__'])
 
 __import__('builtins').__import__ = __import
+""", "<stdin>", "exec"))
+
+__name__ = __import__('requests').__name__
+__file__ = __import__('requests').__file__
+__cached__ = __import__('requests').__cached__
+__spec__ = __import__('requests').__spec__
+__loader__ = __import__('requests').__loader__
+__doc__ = __import__('requests').__doc__
 
 # mock
 mockControl = function(__import__('requests').Session)
