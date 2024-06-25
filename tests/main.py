@@ -1,14 +1,17 @@
 from reqMock import mockControl as mock
 
 mock.add(
-	url = "http://google.com",
-	method = "get",
-	mock = "text",
-	to = "Hello World!"
+	url = "https://google.com",
+	method = "GET",
+	mockCheck = "url",
+	mockMethod = "text",
+	to = "Hello World!",
+	status_code = 404
 )
 
-mock.set(showQuery = True)
-mock.set(stdout = open('out.txt', 'w'))
+mock.set(enable = True)
 
 import requests
-print(requests.get("http://google.com").text)
+a = requests.get("https://google.com")
+print(a)
+print(a.text)
