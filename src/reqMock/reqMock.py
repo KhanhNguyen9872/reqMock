@@ -7,7 +7,7 @@ class function:
         self.__package = __package__
         self.__modulePath = __file__
         if (self.__modulePath):
-        	self.__modulePath = "/".join("/".join(self.__modulePath.split("\\")).split("/")[:-1])
+            self.__modulePath = "/".join("/".join(self.__modulePath.split("\\")).split("/")[:-1])
 
 
         self.__Session = Session()
@@ -234,19 +234,26 @@ class function:
                                 continue
                         self.__stdout.write("> mock enabled!\n")
                     else:
-                    	self.__stdout.write("> mock disabled!\n")
+                        self.__stdout.write("> mock disabled!\n")
                 elif i == "moduleName":
-                	name = str(kwargs[i])
-                	current_name = self.__modulePath.split("/")[-1]
+                    name = str(kwargs[i])
+                    if name:
+                        current_name = self.__modulePath.split("/")[-1]
 
-                	print(">> WARNING: You choose rename module from '{old}' to '{new}'".format(old = current_name, new = name))
-                	if input(">> Do you want to rename? [Y/*]: ").lower() == "y":
-	                	new_path = "/".join(self.__modulePath.split("/")[:-1]) + "/" + name
-	                	__import__('os').rename(self.__modulePath, new_path)
-	                	self.__modulePath = new_path
-	                	print(">> WARNING: restart script to apply change!")
-	                else:
-	                	print(">> Cancelled!")
+                        print(">> WARNING: You choose rename module from '{old}' to '{new}'".format(old = current_name, new = name))
+                        if input(">> Do you want to rename? [Y/*]: ").lower() == "y":
+                            new_path = "/".join(self.__modulePath.split("/")[:-1]) + "/" + name
+                            try:
+                                __import__('os').rename(self.__modulePath, new_path)
+                            except FileExistsError:
+                                print(">> ERROR: module name ({}) EXIST! try another one!".format(name))
+                                return
+                            self.__modulePath = new_path
+                            print(">> WARNING: restart script to apply change!")
+                        else:
+                            print(">> Cancelled!")
+                    else:
+                        print(">> WARNING: module name empty!")
                 else:
                     raise TypeError("config '{name}' not found!".format(name = i))
         return
@@ -289,7 +296,7 @@ class function:
 mockControl = function(__import__('requests').Session)
 
 for reqMock in ["__name__", "__file__", "__cached__", "__spec__", "__loader__", "__doc__", "__path__"]:
-	globals()[reqMock] = __import__('requests').__dict__[reqMock]
+    globals()[reqMock] = __import__('requests').__dict__[reqMock]
 
 class Session:
     def request(self, method, url, **kwargs):
