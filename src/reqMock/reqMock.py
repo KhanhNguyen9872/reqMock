@@ -244,12 +244,17 @@ class function:
                         if input(">> Do you want to rename? [Y/*]: ").lower() == "y":
                             new_path = "/".join(self.__modulePath.split("/")[:-1]) + "/" + name
                             try:
-                                __import__('os').rename(self.__modulePath, new_path)
-                            except FileExistsError:
-                                print(">> ERROR: module name ({}) EXIST! try another one!".format(name))
+                                __import__(name)
+                                print(">> ERROR: Same name as another library! try another one!".format(name))
                                 return
-                            self.__modulePath = new_path
-                            print(">> WARNING: restart script to apply change!")
+                            except (ModuleNotFoundError, ImportError):
+                                try:
+                                    __import__('os').rename(self.__modulePath, new_path)
+                                except FileExistsError:
+                                    print(">> ERROR: module name ({}) EXIST! try another one!".format(name))
+                                    return
+                                self.__modulePath = new_path
+                                print(">> WARNING: restart script to apply change!")
                         else:
                             print(">> Cancelled!")
                     else:
