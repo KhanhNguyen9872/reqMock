@@ -270,9 +270,12 @@ class function:
                             new_path = "/".join(self.__modulePath.split("/")[:-1]) + "/" + name
                             try:
                                 __import__(name)
-                                print(">> ERROR: Same name as another library! try another one!".format(name))
+                                print(">> ERROR: Same name as another module! try another one!".format(name))
                                 return
-                            except (ModuleNotFoundError, ImportError):
+                            except (ImportError, SyntaxError):
+                            	print(">> ERROR: Wrong module name! try another one!")
+                            	return
+                            except (ModuleNotFoundError):
                                 try:
                                     __import__('os').rename(self.__modulePath, new_path)
                                 except FileExistsError:
