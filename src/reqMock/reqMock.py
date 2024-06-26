@@ -67,7 +67,7 @@ class function:
             raise TypeError("add(): [mockCheck] must be a {text}. Found '{found}'".format(text = ", ".join([("'" + x + "'") for x in self.__mockData]), found = mock))
 
         if not mockMethod in ["url", "text"]:
-        	raise TypeError("add(): [mockMethod] must is ('url', 'text'). Found '{found}'".format(found = mockMethod))
+            raise TypeError("add(): [mockMethod] must is ('url', 'text'). Found '{found}'".format(found = mockMethod))
 
         if mockMethod == "url":
             try:
@@ -137,21 +137,21 @@ class function:
                                 isBreak = True
                                 mock = self.__mockData[_type][i]['mockMethod']
 
-                               	if mock == "text":
-                               		isText = self.__mockData[_type][i]['to']
-                               		url = "http://google.com"
-                               	else:
-                                	url = self.__mockData[_type][i]['to']
+                                if mock == "text":
+                                    isText = self.__mockData[_type][i]['to']
+                                    url = "http://google.com"
+                                else:
+                                    url = self.__mockData[_type][i]['to']
 
-	                                if self.__mockData[_type][i]['headers']:
-	                                    kwargs['headers'] = self.__mockData[_type][i]['headers']
-	                                if self.__mockData[_type][i]['data']:
-	                                    kwargs['data'] = self.__mockData[_type][i]['data']
+                                    if self.__mockData[_type][i]['headers']:
+                                        kwargs['headers'] = self.__mockData[_type][i]['headers']
+                                    if self.__mockData[_type][i]['data']:
+                                        kwargs['data'] = self.__mockData[_type][i]['data']
 
                                 status_code = self.__mockData[_type][i]['status_code']
                                 if mock == "text":
-	                                if not status_code:
-	                                    status_code = 200
+                                    if not status_code:
+                                        status_code = 200
                                 break
                         
                         elif _type == "host":
@@ -160,18 +160,18 @@ class function:
                                 mock = self.__mockData[_type][i]['mockMethod']
 
                                 if mock == "text":
-                               		isText = self.__mockData[_type][i]['to']
-                               		url = "http://google.com"
-                               	else:
-	                                url = "{host}{path}".format(host = self.__mockData[_type][i]['to'], path = url.query if url.query else url.path)
-	                                if self.__mockData[_type][i]['headers']:
-	                                    kwargs['headers'] = self.__mockData[_type][i]['headers']
-	                                if self.__mockData[_type][i]['data']:
-	                                    kwargs['data'] = self.__mockData[_type][i]['data']
+                                    isText = self.__mockData[_type][i]['to']
+                                    url = "http://google.com"
+                                else:
+                                    url = "{host}{path}".format(host = self.__mockData[_type][i]['to'], path = url.query if url.query else url.path)
+                                    if self.__mockData[_type][i]['headers']:
+                                        kwargs['headers'] = self.__mockData[_type][i]['headers']
+                                    if self.__mockData[_type][i]['data']:
+                                        kwargs['data'] = self.__mockData[_type][i]['data']
                                 status_code = self.__mockData[_type][i]['status_code']
                                 if mock == "text":
-	                                if not status_code:
-	                                    status_code = 200
+                                    if not status_code:
+                                        status_code = 200
                                 break
         
                         elif _type == "match":
@@ -180,21 +180,21 @@ class function:
                                 mock = self.__mockData[_type][i]['mockMethod']
 
                                 if mock == "text":
-                               		isText = self.__mockData[_type][i]['to']
-                               		url = "http://google.com"
-                               	else:
-	                                url = self.__mockData[_type][i]['to']
-	                                if self.__mockData[_type][i]['headers']:
-	                                    kwargs['headers'] = self.__mockData[_type][i]['headers']
-	                                if self.__mockData[_type][i]['data']:
-	                                    kwargs['data'] = self.__mockData[_type][i]['data']
+                                    isText = self.__mockData[_type][i]['to']
+                                    url = "http://google.com"
+                                else:
+                                    url = self.__mockData[_type][i]['to']
+                                    if self.__mockData[_type][i]['headers']:
+                                        kwargs['headers'] = self.__mockData[_type][i]['headers']
+                                    if self.__mockData[_type][i]['data']:
+                                        kwargs['data'] = self.__mockData[_type][i]['data']
                                 status_code = self.__mockData[_type][i]['status_code']
                                 if mock == "text":
-	                                if not status_code:
-	                                    status_code = 200
+                                    if not status_code:
+                                        status_code = 200
                                 break
                         else:
-                        	raise TypeError("unknown method '{}'".format(_type))
+                            raise TypeError("unknown method '{}'".format(_type))
                     
                 if isBreak:
                     break
@@ -273,8 +273,8 @@ class function:
                                 print(">> ERROR: Same name as another module! try another one!".format(name))
                                 return
                             except (ImportError, SyntaxError):
-                            	print(">> ERROR: Wrong module name! try another one!")
-                            	return
+                                print(">> ERROR: Wrong module name! try another one!")
+                                return
                             except (ModuleNotFoundError):
                                 try:
                                     __import__('os').rename(self.__modulePath, new_path)
@@ -294,8 +294,10 @@ class function:
 # mock
 mockControl = function(__import__('requests').Session)
 
-for reqMock in ["__name__", "__file__", "__cached__", "__spec__", "__loader__", "__doc__", "__path__"]:
+for reqMock in ["__name__", "__file__", "__cached__", "__spec__", "__loader__", "__doc__", "__package__", "__path__"]:
     globals()[reqMock] = __import__('requests').__dict__[reqMock]
+
+del reqMock
 
 class Session:
     def request(self, method, url, **kwargs):
