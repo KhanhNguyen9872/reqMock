@@ -111,12 +111,14 @@ class function:
         return
 
     def __call__(self, method, url, **kwargs):
+        mock = None
+        isBreak = False
+        status_code = None
+        isText = None
+
         if self.__Enable:
-            isBreak = False
-            isText = None
-            status_code = None
             url = self.__urlparse.urlparse(url)
-            mock = None
+            
             for _type in self.__mockData:
                 for i in range(0, len(self.__mockData[_type]), 1):
                     if (self.__mockData[_type][i]['method'] == method):

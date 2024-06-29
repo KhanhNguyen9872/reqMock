@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: reqMock
-Version: 0.0.0.3
+Version: 0.0.0.4
 Summary: Mock requests in python3
 Home-page: https://github.com/KhanhNguyen9872/reqMock
 Download-URL: https://github.com/KhanhNguyen9872/reqMock
@@ -58,7 +58,7 @@ mock.add(
 )
 ```
 
-## Mock `https://google.com` to custom result
+## Mock `https://youtube.com` to custom result
 ```python3
 mock.add(
 	url = "https://youtube.com",
