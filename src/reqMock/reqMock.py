@@ -18,6 +18,7 @@ class function:
         self.__showTrace = False
         self.__stdout = __import__('sys').stdout
         self.__traceback = __import__('traceback')
+        self.__inspect = __import__('inspect')
         self.__qualname__ = self.__request.__qualname__
 
         self.__mockData = {
@@ -248,14 +249,46 @@ class function:
                     else:
                         module_name = '<unknown>'
                     
-                    trace_line = "{num}. {func} of <{module}> at line {line}".format(
-                        num=i, func=func_name, module=module_name, line=line_num
+                    args_str = ""
+                    try:
+                        current_frame = self.__inspect.currentframe()
+                        if current_frame:
+                            frame_obj = current_frame
+                            for _ in range(len(stack) - i):
+                                if frame_obj:
+                                    frame_obj = frame_obj.f_back
+                            
+                            if frame_obj:
+                                frame_locals = frame_obj.f_locals
+                                frame_globals = frame_obj.f_globals
+                                
+                                if frame_locals:
+                                    arg_parts = []
+                                    for key, value in frame_locals.items():
+                                        if not key.startswith('__'):
+                                            try:
+                                                if isinstance(value, str):
+                                                    arg_parts.append(f"{key}='{value}'")
+                                                else:
+                                                    arg_parts.append(f"{key}={value}")
+                                            except:
+                                                arg_parts.append(f"{key}=<{type(value).__name__}>")
+                                    
+                                    if arg_parts:
+                                        args_str = "(" + ", ".join(arg_parts[:10]) + ")"  # Giới hạn 10 tham số
+                                        if len(arg_parts) > 5:
+                                            args_str += "..."
+                    except:
+                        pass
+                    
+                    trace_line = "{num}. {func}{args} of <{module}> at line {line}".format(
+                        num=i, func=func_name, args=args_str, module=module_name, line=line_num
                     )
                     
-                    if line_content:
-                        trace_line += " -> {content}".format(content=line_content)
-                    
                     self.__stdout.write("   {trace}\n".format(trace=trace_line))
+                    
+                    if line_content:
+                        self.__stdout.write("       Line {line}: {content}\n".format(line=line_num, content=line_content))
                 
                 params_str = ""
                 param_parts = []
