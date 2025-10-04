@@ -35,6 +35,9 @@ mock.add(
 	mockCheck = "url",			# method mock ('host', 'url', 'match')
 	mockMethod = "url",			# mock to 'url' or 'text'
 	to = "https://youtube.com",	# data
+	# headers = None, # change header of this request
+	# data = None, # change data of this request
+	# status_code = 200 # change status code of this request
 )
 ```
 
@@ -45,7 +48,10 @@ mock.add(
 	method = "GET",	
 	mockCheck = "url",	
 	mockMethod = "text",
-	to = "Hello World!"
+	to = "Hello World!",
+	# headers = None, 
+	# data = None, 
+	# status_code = 200
 )
 ```
 
@@ -63,6 +69,19 @@ mock.set(showResult = True)		# Default is False
 
 # You will see output requests like this 
 # ">> result: GET: https://google.com" and below is result output
+```
+
+## Enable `showTrace` to print call stack trace
+```python3
+mock.set(showTrace = True)		# Default is False
+
+# You will see detailed call stack trace like this:
+# >> trace:
+#    1. <module> of <main> at line 10 -> main()
+#    2. main of <main> at line 5 -> result = func_a()
+#    3. func_a of <main> at line 2 -> return func_b()
+#    4. func_b of <main> at line 3 -> return requests.get("https://httpbin.org/get")
+#    5. requests.get(url='https://httpbin.org/get', params={'key': 'value'})
 ```
 
 ## Redirect output of `show` to file
