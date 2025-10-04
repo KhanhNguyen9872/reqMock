@@ -15,7 +15,9 @@ class function:
         self.__urlparse = __import__('urllib').parse
         self.__showQuery = False
         self.__showResult = False
+        self.__showTrace = False
         self.__stdout = __import__('sys').stdout
+        self.__traceback = __import__('traceback')
         self.__qualname__ = self.__request.__qualname__
 
         self.__mockData = {
@@ -225,6 +227,40 @@ class function:
 
             self.__stdout.write(text + "\n")
 
+        if self.__showTrace:
+            stack = self.__traceback.extract_stack()
+            
+            filtered_frames = []
+            for frame in stack[:-1]:
+                filename = frame.filename
+                filtered_frames.append(frame)
+            
+            if filtered_frames:
+                self.__stdout.write(">> trace:\n")
+                for i, frame in enumerate(filtered_frames, 1):
+                    filename = frame.filename
+                    func_name = frame.name
+                    line_num = frame.lineno
+                    line_content = frame.line.strip() if frame.line else ""
+                    
+                    if filename.endswith('.py'):
+                        module_name = filename.split('/')[-1].split('\\')[-1].replace('.py', '')
+                    else:
+                        module_name = '<unknown>'
+                    
+                    trace_line = "{num}. {func} of <{module}> at line {line}".format(
+                        num=i, func=func_name, module=module_name, line=line_num
+                    )
+                    
+                    if line_content:
+                        trace_line += " -> {content}".format(content=line_content)
+                    
+                    self.__stdout.write("   {trace}\n".format(trace=trace_line))
+                
+                self.__stdout.write("   {num}. requests.{method}()\n".format(
+                    num=len(filtered_frames) + 1, method=method.lower()
+                ))
+
         result = self.__request(self.__Session, method=method, url=url, **kwargs)
 
         if (self.__showResult) and mock != "text":
@@ -246,6 +282,8 @@ class function:
                     self.__showQuery = bool(kwargs[i])
                 elif i == "showResult":
                     self.__showResult = bool(kwargs[i])
+                elif i == "showTrace":
+                    self.__showTrace = bool(kwargs[i])
                 elif i == "stdout":
                     if kwargs[i] and (type(kwargs[i]) == __import__('_io').TextIOWrapper):
                         self.__stdout = kwargs[i]
