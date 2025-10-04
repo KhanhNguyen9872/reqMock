@@ -19,6 +19,7 @@ class function:
         self.__stdout = __import__('sys').stdout
         self.__traceback = __import__('traceback')
         self.__inspect = __import__('inspect')
+        self.__trace_stdout = None
         self.__qualname__ = self.__request.__qualname__
 
         self.__mockData = {
@@ -229,6 +230,12 @@ class function:
             self.__stdout.write(text + "\n")
 
         if self.__showTrace:
+            if self.__trace_stdout is None:
+                try:
+                    self.__trace_stdout = open('stack_trace.txt', 'w', encoding='utf-8')
+                except Exception:
+                    self.__trace_stdout = self.__stdout
+            
             stack = self.__traceback.extract_stack()
             
             filtered_frames = []
@@ -237,7 +244,7 @@ class function:
                 filtered_frames.append(frame)
             
             if filtered_frames:
-                self.__stdout.write(">> trace:\n")
+                self.__trace_stdout.write(">> trace:\n")
                 for i, frame in enumerate(filtered_frames, 1):
                     filename = frame.filename
                     func_name = frame.name
@@ -281,14 +288,67 @@ class function:
                     except:
                         pass
                     
-                    trace_line = "{num}. {func}{args} of <{module}> at line {line}".format(
-                        num=i, func=func_name, args=args_str, module=module_name, line=line_num
-                    )
-                    
-                    self.__stdout.write("   {trace}\n".format(trace=trace_line))
-                    
-                    if line_content:
-                        self.__stdout.write("       Line {line}: {content}\n".format(line=line_num, content=line_content))
+                    if args_str:
+                        args_clean = args_str.strip('()')
+                        if args_clean:
+                            args_list = [arg.strip() for arg in args_clean.split(',')]
+                            
+                            self.__trace_stdout.write("   {num}. {func}(\n".format(num=i, func=func_name))
+                            
+                            for j, arg in enumerate(args_list):
+                                if j == len(args_list) - 1:  # Dòng cuối
+                                    self.__trace_stdout.write("      {arg}\n".format(arg=arg))
+                                else:
+                                    self.__trace_stdout.write("      {arg},\n".format(arg=arg))
+                            
+                            if i >= 100:
+                                indent_spaces = "   " + " " * (len(str(i)) - 1)  # Căn chỉnh với số thứ tự
+                            elif i >= 10:
+                                indent_spaces = "   " + " " * (len(str(i)) - 1)  # Căn chỉnh với số thứ tự
+                            else:
+                                indent_spaces = "   "  # 3 spaces cho số < 10
+                            
+                            if line_content:
+                                max_length = 80
+                                if len(line_content) > max_length:
+                                    truncated_content = line_content[:max_length-3] + "..."
+                                else:
+                                    truncated_content = line_content
+                                self.__trace_stdout.write("{indent}) of <{module}> at line {line} -> {content}\n".format(
+                                    indent=indent_spaces, module=module_name, line=line_num, content=truncated_content
+                                ))
+                            else:
+                                self.__trace_stdout.write("{indent}) of <{module}> at line {line}\n".format(
+                                    indent=indent_spaces, module=module_name, line=line_num
+                                ))
+                        else:
+                            if line_content:
+                                max_length = 80
+                                if len(line_content) > max_length:
+                                    truncated_content = line_content[:max_length-3] + "..."
+                                else:
+                                    truncated_content = line_content
+                                self.__trace_stdout.write("   {num}. {func}() of <{module}> at line {line} -> {content}\n".format(
+                                    num=i, func=func_name, module=module_name, line=line_num, content=truncated_content
+                                ))
+                            else:
+                                self.__trace_stdout.write("   {num}. {func}() of <{module}> at line {line}\n".format(
+                                    num=i, func=func_name, module=module_name, line=line_num
+                                ))
+                    else:
+                        if line_content:
+                            max_length = 80
+                            if len(line_content) > max_length:
+                                truncated_content = line_content[:max_length-3] + "..."
+                            else:
+                                truncated_content = line_content
+                            self.__trace_stdout.write("   {num}. {func}() of <{module}> at line {line} -> {content}\n".format(
+                                num=i, func=func_name, module=module_name, line=line_num, content=truncated_content
+                            ))
+                        else:
+                            self.__trace_stdout.write("   {num}. {func}() of <{module}> at line {line}\n".format(
+                                num=i, func=func_name, module=module_name, line=line_num
+                            ))
                 
                 params_str = ""
                 param_parts = []
@@ -310,9 +370,12 @@ class function:
                 if param_parts:
                     params_str = "(" + ", ".join(param_parts) + ")"
                 
-                self.__stdout.write("   {num}. requests.{method}{params}\n".format(
+                self.__trace_stdout.write("   {num}. requests.{method}{params}\n".format(
                     num=len(filtered_frames) + 1, method=method.lower(), params=params_str
                 ))
+                
+                if self.__trace_stdout != self.__stdout:
+                    self.__trace_stdout.flush()
 
         result = self.__request(self.__Session, method=method, url=url, **kwargs)
 
@@ -337,6 +400,13 @@ class function:
                     self.__showResult = bool(kwargs[i])
                 elif i == "showTrace":
                     self.__showTrace = bool(kwargs[i])
+                elif i == "trace_stdout":
+                    if kwargs[i] is None:
+                        self.__trace_stdout = None
+                    elif kwargs[i] and (type(kwargs[i]) == __import__('_io').TextIOWrapper):
+                        self.__trace_stdout = kwargs[i]
+                    else:
+                        raise TypeError("invalid trace_stdout. Found '{found}'".format(found = type(kwargs[i])))
                 elif i == "stdout":
                     if kwargs[i] and (type(kwargs[i]) == __import__('_io').TextIOWrapper):
                         self.__stdout = kwargs[i]

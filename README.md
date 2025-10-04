@@ -77,14 +77,16 @@ mock.set(showTrace = True)		# Default is False
 
 # You will see detailed call stack trace like this:
 # >> trace:
-#    1. <module> of <main> at line 10
-#       Line 10: main()
-#    2. main of <main> at line 5
-#       Line 5: result = func_a()
-#    3. func_a(param1='test_value', param2='custom_value') of <main> at line 2
-#       Line 2: return func_b()
-#    4. func_b(arg1='test_value', arg2='custom_value') of <main> at line 3
-#       Line 3: return requests.get("https://httpbin.org/get")
+#    1. <module> of <main> at line 10 -> main()
+#    2. main() of <main> at line 5 -> result = func_a()
+#    3. func_a(
+#           param1='test_value',
+#           param2='custom_value'
+#       ) of <main> at line 2 -> return func_b()
+#    4. func_b(
+#           arg1='test_value',
+#           arg2='custom_value'
+#       ) of <main> at line 3 -> return requests.get("https://httpbin.org/get")
 #    5. requests.get(url='https://httpbin.org/get', params={'key': 'value'})
 ```
 
