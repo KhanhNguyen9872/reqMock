@@ -257,8 +257,28 @@ class function:
                     
                     self.__stdout.write("   {trace}\n".format(trace=trace_line))
                 
-                self.__stdout.write("   {num}. requests.{method}()\n".format(
-                    num=len(filtered_frames) + 1, method=method.lower()
+                params_str = ""
+                param_parts = []
+                
+                if url:
+                    if isinstance(url, str):
+                        param_parts.append(f"url='{url}'")
+                    else:
+                        param_parts.append(f"url={url}")
+                
+                if kwargs:
+                    for key, value in kwargs.items():
+                        if value is not None:
+                            if isinstance(value, str):
+                                param_parts.append(f"{key}='{value}'")
+                            else:
+                                param_parts.append(f"{key}={value}")
+                
+                if param_parts:
+                    params_str = "(" + ", ".join(param_parts) + ")"
+                
+                self.__stdout.write("   {num}. requests.{method}{params}\n".format(
+                    num=len(filtered_frames) + 1, method=method.lower(), params=params_str
                 ))
 
         result = self.__request(self.__Session, method=method, url=url, **kwargs)
