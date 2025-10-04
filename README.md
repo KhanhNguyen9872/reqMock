@@ -35,9 +35,9 @@ mock.add(
 	mockCheck = "url",			# method mock ('host', 'url', 'match')
 	mockMethod = "url",			# mock to 'url' or 'text'
 	to = "https://youtube.com",	# data
-	# headers = None, # change header of this request
-	# data = None, # change data of this request
-	# status_code = 200 # change status code of this request
+	# headers = None, 			# change header of this request
+	# data = None, 				# change data of this request
+	# status_code = 200 		# change status code of this request
 )
 ```
 
